@@ -23,9 +23,20 @@ $(function() {
     fat.basketDetails.init();
   }
 
+  if (pageId === 'page-sas') {
+    fat.sas.init();
+  }
+
 });
 
 var fat = fat || {};
+
+fat.sas = {
+  init: function () {
+    $('#standard-title').val($.cookie("fat-standard-title"));
+    $('#provider-name').val($.cookie("fat-training-provider-title"));
+  }
+}
 
 fat.basketDetails = {
   init: function () {
@@ -169,6 +180,7 @@ fat.details = {
     });
 
     $('.fat-apprenticeship-title').text(title);
+    $.cookie("fat-standard-title", title);
     this.checkIfSaved(id)
   },
   checkIfSaved: function (id) {
@@ -278,6 +290,16 @@ fat.search = {
           .replace('{{ length }}', framework.framework.Duration);
     });
 
+    if (data.length === 0) {
+         document.location.href = ('/campaign/FAT/2D-no-results')
+    }
+
+    if (data.length < 10) {
+      $('ul.pagination').hide();
+    } else {
+      $('ul.pagination').show();
+    }
+
     $('.fat-value').html(data.length);
     $('#fat-search-results').html(html).fadeIn();
     this.setUpCheckboxes();
@@ -356,7 +378,11 @@ fat.search = {
       var searchFor = searchFor.replace(/[^a-z0-9\s\,]/im, '').split(/\s+|\,\s*/m);
       var i, regxp, count = 0;
       for (i in searchFor) {
-        regxp = new RegExp("(^|\\W)" + searchFor[i] + "($|\\W)", "im").test(searchIn);
+
+        var pattern = "(^|\\W)" + searchFor[i].substr(0, 5);
+        //console.log(pattern)
+
+        regxp = new RegExp(pattern, "im").test(searchIn);
         if (regxp) {
           count++;
         }
@@ -381,6 +407,7 @@ fat.search = {
     const sortByOrder = sortBy(getOrder)
 
     filteredData.sort(sortByTitle)
+    filteredData.reverse();
     filteredData.sort(sortByOrder)
     filteredData.reverse();
 
